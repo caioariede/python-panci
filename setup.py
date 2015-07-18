@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-install_requires = ['PyYAML']
+install_requires = ['PyYAML', 'six']
 
 version = sys.version_info[:2]
 

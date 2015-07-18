@@ -37,13 +37,21 @@ class ToxConfig(object):
         """Create an object from a list of environments and a list of
         commands."""
 
-        self.envlist = envlist
+        self.envlist = []
+        self.setenv = []
+
+        for envname, setenv in envlist:
+            self.envlist.append(envname)
+            self.setenv.append((envname, setenv))
+
         self.commands = commands
 
     def getvalue(self):
         """Return a string with the contents of a ``tox.ini`` file."""
 
         envlist = ', '.join(self.envlist)
+
+        setenv = self.get_setenv()
         commands = self.get_commands()
 
         return Template("""
@@ -56,11 +64,24 @@ class ToxConfig(object):
 envlist = $envlist
 
 [testenv]
+setenv =$setenv
 commands = $commands
         """).substitute(
+            setenv=setenv,
             envlist=envlist,
             commands=commands,
         ).lstrip()
+
+    def get_setenv(self):
+        """Return a string with the content of the ``setenv`` key for a
+        ``tox.ini`` file."""
+
+        setenv = []
+
+        for env, vars_ in self.setenv:
+            setenv.append('\n  - {env}: {vars}'.format(env=env, vars=vars_))
+
+        return ''.join(setenv)
 
     def get_commands(self):
         """Return a string with the content of the ``commands`` key for a
