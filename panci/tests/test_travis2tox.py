@@ -6,6 +6,70 @@ from panci.travis2tox import travis2tox
 
 class TravisToToxCommandsTests(unittest.TestCase):
 
+    def test_apt_sources(self):
+        travis = '''
+language: python
+python:
+  - 2.7
+addons:
+  apt:
+    sources:
+    - deadsnakes
+    - ubuntu-toolchain-r-test
+        '''
+
+        tox_config = travis2tox(six.StringIO(travis))
+        self.assertEqual(tox_config.commands, [
+            'add-apt-repository ppa:deadsnakes',
+            'add-apt-repository ppa:ubuntu-toolchain-r-test',
+        ])
+
+        travis = '''
+language: python
+python:
+  - 2.7
+addons:
+  apt:
+    sources: deadsnakes
+        '''
+
+        tox_config = travis2tox(six.StringIO(travis))
+        self.assertEqual(tox_config.commands, [
+            'add-apt-repository ppa:deadsnakes',
+        ])
+
+    def test_apt_packages(self):
+        travis = '''
+language: python
+python:
+  - 2.7
+addons:
+  apt:
+    packages:
+    - cmake
+    - time
+        '''
+
+        tox_config = travis2tox(six.StringIO(travis))
+        self.assertEqual(tox_config.commands, [
+            'apt-get install cmake',
+            'apt-get install time',
+        ])
+
+        travis = '''
+language: python
+python:
+  - 2.7
+addons:
+  apt:
+    packages: cmake
+        '''
+
+        tox_config = travis2tox(six.StringIO(travis))
+        self.assertEqual(tox_config.commands, [
+            'apt-get install cmake',
+        ])
+
     def test_before_install(self):
         travis = '''
 language: python
