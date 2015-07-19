@@ -42,7 +42,8 @@ class ToxConfig(object):
 
         for envname, setenv in envlist:
             self.envlist.append(envname)
-            self.setenv.append((envname, setenv))
+            if setenv:
+                self.setenv.append((envname, setenv))
 
         self.commands = commands
 
@@ -54,6 +55,14 @@ class ToxConfig(object):
         setenv = self.get_setenv()
         commands = self.get_commands()
 
+        items = []
+
+        if setenv:
+            items.append('setenv ={cmds}'.format(cmds=setenv))
+
+        if commands:
+            items.append('commands = {}'.format(commands))
+
         return Template("""
 # Tox (http://tox.testrun.org/) is a tool for running tests
 # in multiple virtualenvs. This configuration file will run the
@@ -64,12 +73,10 @@ class ToxConfig(object):
 envlist = $envlist
 
 [testenv]
-setenv =$setenv
-commands = $commands
+$items
         """).substitute(
-            setenv=setenv,
             envlist=envlist,
-            commands=commands,
+            items='\n'.join(items),
         ).lstrip()
 
     def get_setenv(self):

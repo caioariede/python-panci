@@ -6,6 +6,26 @@ from panci.travis2tox import travis2tox
 
 class TravisToToxEnvsTests(unittest.TestCase):
 
+    def test_no_env(self):
+        travis = '''
+language: python
+python: 2.7
+install:
+  - echo 1
+        '''
+
+        tox_config = travis2tox(six.StringIO(travis))
+
+        tox_file = tox_config.getvalue().splitlines()
+        tox_file = '\n'.join(tox_file[5:])
+
+        self.assertEqual(tox_file, '''[tox]
+envlist = py27
+
+[testenv]
+commands = echo 1
+        ''')
+
     def test_one_env(self):
         travis = '''
 language: python
